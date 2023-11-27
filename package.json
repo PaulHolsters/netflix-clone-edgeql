@@ -1,0 +1,29 @@
+{
+  "name": "mouldit-edgeql-backend-v0",
+  "version": "1.0.0",
+  "description": "",
+  "main": "mouldit-server/server.ts",
+  "scripts": {
+    "build": "npx tsc",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon mouldit-server/server.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^16.3.1",
+    "edgedb": "^1.4.1",
+    "express": "^4.18.2",
+    "nodemon": "^3.0.1"
+  },
+  "devDependencies": {
+    "@edgedb/generate": "^0.4.1",
+    "@types/express": "^4.17.21",
+    "@types/node": "^20.10.0",
+    "ts-node-dev": "^2.0.0",
+    "tsx": "^4.5.0",
+    "typescript": "^5.3.2"
+  }
+}
+
