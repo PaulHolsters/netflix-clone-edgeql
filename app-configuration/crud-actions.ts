@@ -1,18 +1,19 @@
 import {CrudAction} from "../server-actions/crudactions/crud-action";
 import * as edgedb from "edgedb"
 import e from "./../dbschema/edgeql-js"
-export const crudActions:CrudAction[] = []
-const client = edgedb.createClient()
-client.ensureConnected().then(()=> {
+export const compileCommandsUserConfig = function compileCommandsUserConfig(client:edgedb.Client):CrudAction[]{
+    const crudActions:CrudAction[] = []
     const getAllMovies = async function getAllMovies() {
+        // todo add try catch for internal logging => indien fout geprogrammeerd kan dit fout lopen = niet type safe!
+        // todo maak dit type safe met behulp van interface generators
         return e.select(e.Movie, () => ({
             id: true,
             title: true,
-            actors: {name: true,character_name:true},
+            actors: {name: true},
             release_year: true
         })).run(client)
     }
-    const getAllMoviesCrudAction = new CrudAction('getAllMovies', getAllMovies)
+    crudActions.push(new CrudAction('getAllMovies', getAllMovies))
     const getAllShows = async function getAllShows() {
         return e.select(e.Show, () => ({
             id: true,
@@ -20,7 +21,7 @@ client.ensureConnected().then(()=> {
             num_seasons:true
         })).run(client)
     }
-    const getAllShowsCrudAction = new CrudAction('getAllShows', getAllShows)
+    crudActions.push(new CrudAction('getAllShows', getAllShows))
     const getAllSeasons = async function getAllSeasons() {
         return e.select(e.Season, () => ({
             id: true,
@@ -28,9 +29,22 @@ client.ensureConnected().then(()=> {
             show: true,
         })).run(client)
     }
-    const getAllSeasonsCrudAction = new CrudAction('getAllSeasons', getAllSeasons)
-
-
-    crudActions.push(getAllMoviesCrudAction)
-}).catch(err=>console.log(err))
+    crudActions.push(new CrudAction('getAllSeasons', getAllSeasons))
+    const getAllActors = async function getAllActors() {
+        return e.select(e.Person, () => ({
+            id: true,
+            name: true
+        })).run(client)
+    }
+    crudActions.push( new CrudAction('getAllActors', getAllActors))
+    const getAllContent = async function getAllContent() {
+        return e.select(e.Content, () => ({
+            id: true,
+            title: true,
+            actors:true,
+        })).run(client)
+    }
+    crudActions.push(new CrudAction('getAllContent', getAllContent))
+    return crudActions
+}
 
