@@ -10,7 +10,16 @@ client.ensureConnected().then(() => {
             ServerActions.addAction(c)
         })
         const server = express()
-        server.get('/:actionId', (req: Request, res: Response, next) => {
+        server.use((req,res,next)=>{
+            res.header('Access-Control-Allow-Origin','*')
+            res.header('Access-Control-Allow-Headers','Origin, X-Requested-With, Content-Type, Accept, Authorization')
+            if(req.method === 'OPTIONS'){
+                res.header('Access-Control-Allow-Methods','POST, GET')
+                return res.status(200).json({})
+            }
+            next()
+        })
+        server.post('/:actionId', (req: Request, res: Response, next) => {
             const action = ServerActions.getAction(req.params.actionId)
             console.log(action, (req.params.actionId))
             if (action) {
@@ -22,7 +31,7 @@ client.ensureConnected().then(() => {
                 }).catch()
             } else res.status(500).send('seriously fucked up')
         })
-        const port = Number(process.env.PORT || 3000)
+        const port = Number(process.env.PORT || 5000)
         http.createServer(server).listen(port)
     }
 ).catch(e => {
