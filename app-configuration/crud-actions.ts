@@ -4,14 +4,24 @@ import e from "./../dbschema/edgeql-js"
 export const compileCommandsUserConfig = function compileCommandsUserConfig(client:edgedb.Client):CrudAction[]{
     const crudActions:CrudAction[] = []
     const getAllMovies = async function getAllMovies() {
+        debugger
         // todo add try catch for internal logging => indien fout geprogrammeerd kan dit fout lopen = niet type safe!
         // todo maak dit type safe met behulp van interface generators
-        return e.select(e.Movie, () => ({
+        const myAccount = e.select(e.Account,(account)=>({
+            id:true,
+            watchlist:{id:true},
+            filter: e.op(account.username,'=','Pol')
+        }));
+        return e.select(e.Movie, (movie) => ({
             id: true,
             title: true,
             actors: {name: true},
-            release_year: true
-        })).run(client)
+            release_year: true,
+            isInList:e.op(e.count((e.select(myAccount.watchlist,(list)=>({
+                id:true,
+                filter:e.op(movie.id,'=',list.id)
+            })))),'=',1)
+    })).run(client)
     }
     crudActions.push(new CrudAction('getAllMovies', getAllMovies))
     const getAllShows = async function getAllShows() {
@@ -45,6 +55,24 @@ export const compileCommandsUserConfig = function compileCommandsUserConfig(clie
         })).run(client)
     }
     crudActions.push(new CrudAction('getAllContent', getAllContent))
+    const removeMovieFromList = async function removeMovieFromList(id:string|undefined) {
+        if(id){
+            const movie = e.select(e.Movie,(m)=>({
+                filter_single: {id: id}
+            }))
+            // todo geef de nieuwe lijst door?
+            // todo of misschien beter enkel het aangepaste record?
+            return e.update(e.Account,(acc)=>({
+                filter_single: {username: 'Pol'},
+                set: {
+                    watchlist: {"-=":movie}
+                }
+
+            })).run(client)
+        }
+        return null
+    }
+    crudActions.push(new CrudAction('removeMovieFromList', removeMovieFromList))
     return crudActions
 }
 
