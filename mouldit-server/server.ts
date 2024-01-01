@@ -25,7 +25,6 @@ client.ensureConnected().then(() => {
         })
         server.post('/:actionId', (req: Request, res: Response, next) => {
             const action = ServerActions.getAction(req.params.actionId)
-            console.log(req.body?.id)
             if (action) {
                 action.command(req.body?.id).then(result => {
                     // todo nagaan wat hier de verschillende errors allemaal kunnen zijn en ze dan degelijk afhandelen

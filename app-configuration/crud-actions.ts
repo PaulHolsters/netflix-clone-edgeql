@@ -56,11 +56,6 @@ export const compileCommandsUserConfig = function compileCommandsUserConfig(clie
     crudActions.push(new CrudAction('getAllContent', getAllContent))
     const removeMovieFromList = async function removeMovieFromList(id:string|undefined) {
         if(id){
-            const myAccount = e.select(e.Account,(account)=>({
-                id:true,
-                watchlist:{id:true},
-                filter: e.op(account.username,'=','Pol')
-            }));
             const movie = e.select(e.Movie,(m)=>({
                 filter_single: {id: id}
             }))
@@ -83,6 +78,32 @@ export const compileCommandsUserConfig = function compileCommandsUserConfig(clie
         return null
     }
     crudActions.push(new CrudAction('removeMovieFromList', removeMovieFromList))
+
+    const addMovieToList = async function addMovieToList(id:string|undefined) {
+        if(id){
+            const movie = e.select(e.Movie,(m)=>({
+                filter_single: {id: id}
+            }))
+            e.update(e.Account,(acc)=>({
+                filter_single: {username: 'Pol'},
+                set: {
+                    watchlist: {"+=":movie}
+                }
+
+            })).run(client)
+            return e.select(e.Movie,()=>({
+                id: true,
+                title: true,
+                actors: {name: true},
+                release_year: true,
+                isInList:e.bool(true),
+                filter_single: {id: id}
+            })).run(client)
+        }
+        return null
+    }
+    crudActions.push(new CrudAction('addMovieToList', addMovieToList))
+
     return crudActions
 }
 
